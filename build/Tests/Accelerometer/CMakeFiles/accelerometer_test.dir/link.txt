@@ -1,0 +1,1 @@
+/usr/bin/arm-linux-gnueabihf-g++  -Wall -Werror -Wall -Werror   CMakeFiles/accelerometer_test.dir/accelerometer_test.cc.o  -o accelerometer_test  ../../Accelerometer/libaccelerometer.a 

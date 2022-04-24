@@ -1,0 +1,2 @@
+/usr/bin/arm-linux-gnueabihf-ar qc libaccelerometer.a  CMakeFiles/accelerometer.dir/accelerometer.cc.o
+/usr/bin/arm-linux-gnueabihf-ranlib libaccelerometer.a
