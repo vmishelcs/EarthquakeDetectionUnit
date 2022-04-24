@@ -1,2 +1,0 @@
-# Hashes of file build rules.
-089a8ce5d3f07919007b6e0196cbbe37 Tests/Accelerometer/CMakeFiles/accelerometer_test_custom
