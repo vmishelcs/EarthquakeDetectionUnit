@@ -3,14 +3,32 @@
 
 #include <atomic>
 #include <cstdint>
+#include <mutex>
 #include <thread>
+#include <vector>
+
+/*
+ * https://cdn.sparkfun.com/datasheets/Sensors/Accelerometers/MMA8452Q-rev8.1.pdf
+ */
 
 namespace earthquake_detection_unit {
 
 class Accelerometer {
 public:
+    typedef struct Vector {
+        Vector(int16_t x_reading, int16_t y_reading, int16_t z_reading);
+        Vector(const Vector &v);
+
+        double x;
+        double y;
+        double z;
+        double magnitude;
+    } Vector;
+
     Accelerometer();
     ~Accelerometer();
+
+    Vector GetReading();
 
 private:
     enum Sensitivity {
@@ -22,7 +40,7 @@ private:
     // Worker thread for sampling accelerometer readings.
     void Worker();
 
-    void ReadAccelerometerData(int16_t *data);
+    void CollectReading();
 
     void ActivateAccelerometer();
     void ShutdownAccelerometer();
@@ -35,6 +53,10 @@ private:
     std::atomic<bool> shutdown;
     // Worker thread.
     std::thread worker_thread;
+    // Buffer of latest readings.
+    std::vector<Vector> samples;
+    // Mutex for restricting concurrent accesses to readings.
+    std::mutex mtx;
 };
 
 } // earthquake_detection_unit
