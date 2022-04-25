@@ -1,1 +1,2 @@
 add_subdirectory(Accelerometer)
+add_subdirectory(DigitDisplay)

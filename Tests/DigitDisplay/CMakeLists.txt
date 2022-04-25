@@ -1,0 +1,4 @@
+add_executable(digit_display_test digit_display_test.cc)
+target_link_libraries(digit_display_test digit_display)
+add_test(NAME digit_display_test COMMAND digit_display_test)
+add_custom_target(digit_display_test_custom COMMAND ${CMAKE_CTEST_COMMAND} DEPENDS digit_display_test)

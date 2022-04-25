@@ -46,6 +46,7 @@ Accelerometer::Accelerometer() : shutdown(false), samples() {
 Accelerometer::~Accelerometer() {
     shutdown = true;
     worker_thread.join();
+    close(i2c_fd);
 }
 
 Accelerometer::Vector::Vector(int16_t x_reading, int16_t y_reading, int16_t z_reading) {

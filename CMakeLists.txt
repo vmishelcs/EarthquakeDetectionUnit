@@ -12,4 +12,5 @@ endif("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 include_directories(${CMAKE_SOURCE_DIR})
 
 add_subdirectory(Accelerometer)
+add_subdirectory(DigitDisplay)
 add_subdirectory(Tests)
