@@ -47,8 +47,6 @@ private:
 
     void SetSensitivity(Sensitivity sensitivity);
 
-    // I2C file descriptor.
-    int i2c_fd;
     // Signal to shutdown worker thread.
     std::atomic<bool> shutdown;
     // Worker thread.

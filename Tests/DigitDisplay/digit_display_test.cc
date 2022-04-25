@@ -1,8 +1,18 @@
 #include <iostream>
 
+#include <I2CManager/i2c_manager.h>
 #include <DigitDisplay/digit_display.h>
 
 int main() {
-    std::cout << "Hello world." << std::endl;
+    earthquake_detection_unit::I2CManager::Initialize();
+    auto *dd = new earthquake_detection_unit::DigitDisplay();
+
+    for (int i = 0; i < 10; ++i) {
+        dd->SetDigit(i);
+        std::this_thread::sleep_for(std::chrono::milliseconds(250));
+    }
+
+    delete dd;
+    earthquake_detection_unit::I2CManager::Uninitialize();
     return 0;
 }
