@@ -13,4 +13,5 @@ include_directories(${CMAKE_SOURCE_DIR})
 
 add_subdirectory(Accelerometer)
 add_subdirectory(DigitDisplay)
+add_subdirectory(GPIO)
 add_subdirectory(Tests)
