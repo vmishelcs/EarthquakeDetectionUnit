@@ -5,6 +5,7 @@
 #include <thread>
 
 #include "gpio.h"
+#include "export_file_manager.h"
 
 namespace earthquake_detection_unit {
 
@@ -12,11 +13,14 @@ const std::string kExportFilePath   = "/sys/class/gpio/export";
 const std::string kUnexportFilePath = "/sys/class/gpio/unexport";
 
 GPIO::GPIO(int gpio_number) : gpio_number(gpio_number) {
-    ExportGPIOPin();
+    auto *efm = ExportFileManager::Get();
+    efm->ExportPin(gpio_number);
 }
 
 GPIO::~GPIO() {
-    UnexportGPIOPin();
+    // Don't export as that drives some GPIO pins to HIGH.
+    // auto *efm = ExportFileManager::Get();
+    // efm->UnexportPin(gpio_number);
 }
 
 void GPIO::WriteToGPIOValueFile(GPIO::PinValue value) {

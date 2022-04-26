@@ -3,8 +3,8 @@
 #include <iostream>
 #include <thread>
 
-#include <I2CManager/i2c_manager.h>
 #include <Accelerometer/accelerometer.h>
+#include <I2CManager/i2c_manager.h>
 
 int main() {
     earthquake_detection_unit::I2CManager::Initialize();

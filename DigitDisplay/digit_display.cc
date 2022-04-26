@@ -9,8 +9,8 @@
 
 namespace earthquake_detection_unit {
 
-const int kLeftDigitGPIONumber        = 44;
-const int kRightDigitGPIONumber       = 61;
+const int kLeftDigitGPIONumber        = 61;
+const int kRightDigitGPIONumber       = 44;
 const uint8_t kDigitDisplayI2CAddress = 0x20;
 const uint8_t kLowerDigitRegister     = 0x14;
 const uint8_t kUpperDigitRegister     = 0x15;
@@ -33,14 +33,14 @@ DigitDisplay::DigitDisplay() : left_digit_gpio(kLeftDigitGPIONumber),
     current_digit = 0;
 
     // Turn display on (just the right digit).
-    left_digit_gpio.WriteToGPIOValueFile(GPIO::PinValue::HIGH);
-    right_digit_gpio.WriteToGPIOValueFile(GPIO::PinValue::LOW);
+    left_digit_gpio.WriteToGPIOValueFile(GPIO::PinValue::LOW);
+    right_digit_gpio.WriteToGPIOValueFile(GPIO::PinValue::HIGH);
 }
 
 DigitDisplay::~DigitDisplay() {
     // Turn off digit display.
     left_digit_gpio.WriteToGPIOValueFile(GPIO::PinValue::LOW);
-    // right_digit_gpio.WriteToGPIOValueFile(GPIO::PinValue::LOW);
+    right_digit_gpio.WriteToGPIOValueFile(GPIO::PinValue::LOW);
 }
 
 void DigitDisplay::SetDigit(uint8_t digit) {

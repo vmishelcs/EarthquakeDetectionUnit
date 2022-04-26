@@ -1,9 +1,11 @@
 #include <iostream>
 
-#include <I2CManager/i2c_manager.h>
+#include <GPIO/export_file_manager.h>
 #include <DigitDisplay/digit_display.h>
+#include <I2CManager/i2c_manager.h>
 
 int main() {
+    earthquake_detection_unit::ExportFileManager::Initialize();
     earthquake_detection_unit::I2CManager::Initialize();
     auto *dd = new earthquake_detection_unit::DigitDisplay();
 
