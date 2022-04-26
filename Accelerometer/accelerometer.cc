@@ -15,9 +15,10 @@ const uint8_t kAccelerometerOnCommand  = 0x01;
 const uint8_t kAccelerometerOffCommand = 0x00;
 const uint8_t kSleepTime_ms            = 2;
 const uint8_t kSampleBufferSize        = 16;
+const double kSmoothingFactor          = 0.1f;
 const Accelerometer::Sensitivity kDefaultAccelerometerSensitivity = Accelerometer::Sensitivity::SENS_2G;
 
-Accelerometer::Accelerometer() : shutdown(false), samples() {
+Accelerometer::Accelerometer() : shutdown(false), smoothed_reading(0.0f) {
     auto *i2c_m = I2CManager::Get();
     i2c_m->SetSlaveAddress(kAccelerometerI2CAddress);
 
@@ -29,7 +30,7 @@ Accelerometer::Accelerometer() : shutdown(false), samples() {
     worker_thread = std::thread(&Accelerometer::Worker, this);
 }
 
-Accelerometer::Accelerometer(Accelerometer::Sensitivity sens) : shutdown(false), samples() {
+Accelerometer::Accelerometer(Accelerometer::Sensitivity sens) : shutdown(false), smoothed_reading(0.0f) {
     auto *i2c_m = I2CManager::Get();
     i2c_m->SetSlaveAddress(kAccelerometerI2CAddress);
 
@@ -53,7 +54,7 @@ Accelerometer::Vector::Vector(int16_t x_reading, int16_t y_reading, int16_t z_re
     z = (double)abs(z_reading > 2048 ? z_reading - 4095 : z_reading);
     x /= 1024.0f;
     y /= 1024.0f;
-    z /= 1024.0f;
+    z = z / 1024.0f - 1;
     // Obtain vector magnitude.
     magnitude = sqrt(x * x + y * y + z * z);
 }
@@ -82,30 +83,21 @@ void Accelerometer::CollectReading() {
     auto *i2c_m = I2CManager::Get();
     i2c_m->ReadFromRegister(kAccelerometerDataReg, (char *)buf, 7);
 
+    // Construct directional magnitudes and Vector object from the latest reading.
     int16_t x_reading = ((buf[1] << 8) | buf[2]) >> 4;
     int16_t y_reading = ((buf[3] << 8) | buf[4]) >> 4;
     int16_t z_reading = ((buf[5] << 8) | buf[6]) >> 4;
+    Vector latest_vector_reading(x_reading, y_reading, z_reading);
 
-    mtx.lock();
-    {
-        // Insert the latest reading at the front.
-        samples.emplace(samples.begin(), x_reading, y_reading, z_reading);
-        // Do not store more than kSampleBufferSize readings.
-        if (samples.size() > kSampleBufferSize) {
-            samples.pop_back();
-        }
-    }
-    mtx.unlock();
+    // Subtract 1 from magnitude for gravity = 1g.
+    double latest_magnitude_reading = latest_vector_reading.magnitude;
+
+    smoothed_reading = kSmoothingFactor * latest_magnitude_reading +
+                       (1.0f - kSmoothingFactor) * smoothed_reading;
 }
 
-Accelerometer::Vector Accelerometer::GetReading() {
-    if (samples.size() > 0) {
-        mtx.lock();
-        Vector result = samples.front();
-        mtx.unlock();
-        return result;
-    }
-    return Vector(0, 0, 0);
+double Accelerometer::GetReading() {
+    return smoothed_reading;
 }
 
 void Accelerometer::ActivateAccelerometer() {

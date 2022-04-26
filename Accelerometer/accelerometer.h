@@ -38,7 +38,7 @@ public:
     Accelerometer(Sensitivity sens);
     ~Accelerometer();
 
-    Vector GetReading();
+    double GetReading();
 
 private:
     // Worker thread for sampling accelerometer readings.
@@ -57,10 +57,8 @@ private:
     std::atomic<bool> shutdown;
     // Worker thread.
     std::thread worker_thread;
-    // Buffer of latest readings.
-    std::vector<Vector> samples;
-    // Mutex for restricting concurrent accesses to readings.
-    std::mutex mtx;
+    // Exponentially smoothed accelerometer magnitude reading.
+    std::atomic<double> smoothed_reading;
 };
 
 } // earthquake_detection_unit
