@@ -15,7 +15,7 @@ const uint8_t kAccelerometerOnCommand  = 0x01;
 const uint8_t kAccelerometerOffCommand = 0x00;
 const uint8_t kSleepTime_ms            = 2;
 const uint8_t kSampleBufferSize        = 16;
-
+const Accelerometer::Sensitivity kDefaultAccelerometerSensitivity = Accelerometer::Sensitivity::SENS_2G;
 
 Accelerometer::Accelerometer() : shutdown(false), samples() {
     auto *i2c_m = I2CManager::Get();
@@ -23,7 +23,20 @@ Accelerometer::Accelerometer() : shutdown(false), samples() {
 
     ActivateAccelerometer();
 
+    sens = kDefaultAccelerometerSensitivity;
     SetSensitivity(Accelerometer::Sensitivity::SENS_2G);
+
+    worker_thread = std::thread(&Accelerometer::Worker, this);
+}
+
+Accelerometer::Accelerometer(Accelerometer::Sensitivity sens) : shutdown(false), samples() {
+    auto *i2c_m = I2CManager::Get();
+    i2c_m->SetSlaveAddress(kAccelerometerI2CAddress);
+
+    ActivateAccelerometer();
+
+    sens = sens;
+    SetSensitivity(sens);
 
     worker_thread = std::thread(&Accelerometer::Worker, this);
 }

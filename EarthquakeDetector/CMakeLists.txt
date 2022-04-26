@@ -1,0 +1,1 @@
+add_library(earthquake_detector earthquake_detector.cc)

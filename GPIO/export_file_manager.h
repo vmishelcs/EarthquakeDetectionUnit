@@ -1,3 +1,5 @@
+#pragma once
+
 #include <mutex>
 
 namespace earthquake_detection_unit {
