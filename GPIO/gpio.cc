@@ -1,7 +1,9 @@
 #include <cerrno>
 #include <cstring>
+#include <dirent.h>
 #include <fstream>
 #include <iostream>
+#include <sys/types.h>
 #include <thread>
 
 #include "gpio.h"
@@ -13,8 +15,13 @@ const std::string kExportFilePath   = "/sys/class/gpio/export";
 const std::string kUnexportFilePath = "/sys/class/gpio/unexport";
 
 GPIO::GPIO(int gpio_number) : gpio_number(gpio_number) {
-    auto *efm = ExportFileManager::Get();
-    efm->ExportPin(gpio_number);
+    // Check if pin needs to be exported.
+    DIR *dir = opendir(GetGPIODirectory().c_str());
+    if (!dir) {
+        auto *efm = ExportFileManager::Get();
+        efm->ExportPin(gpio_number);
+        closedir(dir);
+    }
 }
 
 GPIO::~GPIO() {

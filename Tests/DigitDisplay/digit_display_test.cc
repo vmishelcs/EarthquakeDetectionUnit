@@ -16,5 +16,6 @@ int main() {
 
     delete dd;
     earthquake_detection_unit::I2CManager::Uninitialize();
+    earthquake_detection_unit::ExportFileManager::Uninitialize();
     return 0;
 }

@@ -29,8 +29,10 @@ DigitDisplay::DigitDisplay() : left_digit_gpio(kLeftDigitGPIONumber),
     left_digit_gpio.WriteToGPIODirectionFile(GPIO::PinDirection::OUT);
     right_digit_gpio.WriteToGPIODirectionFile(GPIO::PinDirection::OUT);
 
-    // Initialize member variables.
+    // Initialize to 0.
     current_digit = 0;
+    i2c_m->WriteToRegister(kLowerDigitRegister, 0xA3);
+    i2c_m->WriteToRegister(kUpperDigitRegister, 0x96);    
 
     // Turn display on (just the right digit).
     left_digit_gpio.WriteToGPIOValueFile(GPIO::PinValue::LOW);
