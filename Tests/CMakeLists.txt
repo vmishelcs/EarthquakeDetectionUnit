@@ -1,2 +1,3 @@
 add_subdirectory(Accelerometer)
 add_subdirectory(DigitDisplay)
+add_subdirectory(VibrationSensor)

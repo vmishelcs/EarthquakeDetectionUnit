@@ -16,7 +16,7 @@ GPIO::GPIO(int gpio_number) : gpio_number(gpio_number) {
 }
 
 GPIO::~GPIO() {
-    // Don't export as that drives some GPIO pins to HIGH.
+    // Don't unexport as that drives some GPIO pins to HIGH.
     // UnexportGPIOPin();
 }
 
@@ -52,6 +52,11 @@ void GPIO::WriteToGPIODirectionFile(GPIO::PinDirection direction) {
     direction_file.close();
 }
 
+std::string GPIO::GetValueFilePath() {
+    std::string result = GetGPIODirectory() + "value";
+    return result;
+}
+
 void GPIO::ExportGPIOPin() {
     // Check if pin needs to be exported.
     DIR *dir = opendir(GetGPIODirectory().c_str());
@@ -75,7 +80,7 @@ void GPIO::UnexportGPIOPin() {
     }
 }
 
-std::string GPIO::GetGPIODirectory() {
+std::string GPIO::GetGPIODirectory() const {
     std::string base = "/sys/class/gpio/gpio";
     std::string gpio_number_str = std::to_string(gpio_number);
     std::string result = base + gpio_number_str + "/";

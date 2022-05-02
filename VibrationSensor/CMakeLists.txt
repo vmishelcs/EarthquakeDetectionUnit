@@ -1,0 +1,1 @@
+add_library(vibration_sensor vibration_sensor.cc)

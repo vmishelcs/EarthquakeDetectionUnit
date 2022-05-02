@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-set(CMAKE_TOOLCHAIN_FILE "/home/vmishel/earthquake_detection_unit/edu_toolchain.cmake")
+set(CMAKE_TOOLCHAIN_FILE "~/earthquake_detection_unit/edu_toolchain.cmake")
 
 project("Earthquake Detection Unit")
 
@@ -16,5 +16,6 @@ add_subdirectory(DigitDisplay)
 add_subdirectory(EarthquakeDetector)
 add_subdirectory(GPIO)
 add_subdirectory(I2CManager)
+add_subdirectory(VibrationSensor)
 
 add_subdirectory(Tests)

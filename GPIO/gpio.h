@@ -19,14 +19,21 @@ public:
     GPIO(int gpio_number);
     ~GPIO();
 
+    // Writes `value` to .../gpioXX/value file.
     void WriteToGPIOValueFile(PinValue value);
+    // Writes `direction` to .../gpioXX/direction file.
     void WriteToGPIODirectionFile(PinDirection direction);
 
+    // Obtains the value file directory for this GPIO object.
+    std::string GetValueFilePath();
+
 private:
+    // Exports `gpio_number` pin as GPIO.
     void ExportGPIOPin();
+    // Unexports `gpio_number` pin.
     void UnexportGPIOPin();
 
-    std::string GetGPIODirectory();
+    std::string GetGPIODirectory() const;
 
     // Linux GPIO number.
     int gpio_number;

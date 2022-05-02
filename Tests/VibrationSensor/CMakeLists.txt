@@ -1,0 +1,4 @@
+add_executable(vibration_sensor_test vibration_sensor_test.cc)
+target_link_libraries(vibration_sensor_test vibration_sensor gpio)
+add_test(NAME vibration_sensor_test COMMAND vibration_sensor_test)
+add_custom_target(vibration_sensor_test_custom COMMAND ${CMAKE_CTEST_COMMAND} DEPENDS vibration_sensor_test)

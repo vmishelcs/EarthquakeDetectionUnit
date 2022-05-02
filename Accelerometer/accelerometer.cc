@@ -14,7 +14,6 @@ const uint8_t kAccelerometerDataReg    = 0x00;
 const uint8_t kAccelerometerOnCommand  = 0x01;
 const uint8_t kAccelerometerOffCommand = 0x00;
 const uint8_t kSleepTime_ms            = 2;
-const uint8_t kSampleBufferSize        = 16;
 const double kSmoothingFactor          = 0.1f;
 const Accelerometer::Sensitivity kDefaultAccelerometerSensitivity = Accelerometer::Sensitivity::SENS_2G;
 
