@@ -26,8 +26,8 @@ DigitDisplay::DigitDisplay() : left_digit_gpio(kLeftDigitGPIONumber),
     i2c_m->WriteToRegister(0x01, 0x00);
 
     // Set GPIO pin to output.
-    left_digit_gpio.WriteToGPIODirectionFile(GPIO::PinDirection::OUT);
-    right_digit_gpio.WriteToGPIODirectionFile(GPIO::PinDirection::OUT);
+    left_digit_gpio.SetDirection(GPIO::PinDirection::OUT);
+    right_digit_gpio.SetDirection(GPIO::PinDirection::OUT);
 
     // Initialize to 0.
     current_digit = 0;
@@ -35,14 +35,14 @@ DigitDisplay::DigitDisplay() : left_digit_gpio(kLeftDigitGPIONumber),
     i2c_m->WriteToRegister(kUpperDigitRegister, 0x96);    
 
     // Turn display on (just the right digit).
-    left_digit_gpio.WriteToGPIOValueFile(GPIO::PinValue::LOW);
-    right_digit_gpio.WriteToGPIOValueFile(GPIO::PinValue::HIGH);
+    left_digit_gpio.SetValue(GPIO::PinValue::LOW);
+    right_digit_gpio.SetValue(GPIO::PinValue::HIGH);
 }
 
 DigitDisplay::~DigitDisplay() {
     // Turn off digit display.
-    left_digit_gpio.WriteToGPIOValueFile(GPIO::PinValue::LOW);
-    right_digit_gpio.WriteToGPIOValueFile(GPIO::PinValue::LOW);
+    left_digit_gpio.SetValue(GPIO::PinValue::LOW);
+    right_digit_gpio.SetValue(GPIO::PinValue::LOW);
 }
 
 void DigitDisplay::SetDigit(uint8_t digit) {

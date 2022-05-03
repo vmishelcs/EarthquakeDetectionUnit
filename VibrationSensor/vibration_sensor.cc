@@ -12,7 +12,8 @@ namespace earthquake_detection_unit {
 const int kVibrationSensorGPIONumber = 67;
 
 VibrationSensor::VibrationSensor() : pin(kVibrationSensorGPIONumber) {
-    pin.WriteToGPIODirectionFile(GPIO::PinDirection::IN);
+    pin.SetDirection(GPIO::PinDirection::IN);
+    pin.SetEdge(GPIO::PinEdge::RISING);
 }
 
 VibrationSensor::~VibrationSensor() {
@@ -40,7 +41,7 @@ void VibrationSensor::WaitForVibration() {
     }
 
     struct epoll_event ep;
-    ep.events = EPOLLIN | EPOLLET | EPOLLPRI;
+    ep.events = EPOLLIN | EPOLLET;
     ep.data.fd = gpio_fd;
 
     // Add epoll event.

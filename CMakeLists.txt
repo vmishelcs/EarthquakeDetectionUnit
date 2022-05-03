@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-set(CMAKE_TOOLCHAIN_FILE "~/earthquake_detection_unit/edu_toolchain.cmake")
+set(CMAKE_TOOLCHAIN_FILE "/home/${USER}/earthquake_detection_unit/edu_toolchain.cmake")
 
 project("Earthquake Detection Unit")
 
@@ -19,3 +19,6 @@ add_subdirectory(I2CManager)
 add_subdirectory(VibrationSensor)
 
 add_subdirectory(Tests)
+
+add_executable(edu main.cc)
+target_link_libraries(edu accelerometer digit_display earthquake_detector gpio i2c_manager vibration_sensor)

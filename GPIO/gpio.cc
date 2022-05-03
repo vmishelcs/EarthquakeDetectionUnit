@@ -20,12 +20,12 @@ GPIO::~GPIO() {
     // UnexportGPIOPin();
 }
 
-void GPIO::WriteToGPIOValueFile(GPIO::PinValue value) {
+void GPIO::SetValue(GPIO::PinValue value) {
     std::string value_file_path = GetGPIODirectory() + "value";
     std::ofstream value_file(value_file_path);
     if (value_file.fail()) {
         std::cerr << "ERROR: failed to open " << value_file_path;
-        std::cerr << " in GPIO::WriteToGPIOValueFile." << std::endl;
+        std::cerr << " in GPIO::SetValue." << std::endl;
         std::cerr << "errno: " << strerror(errno) << std::endl;
         std::_Exit(EXIT_FAILURE);
     }
@@ -35,12 +35,12 @@ void GPIO::WriteToGPIOValueFile(GPIO::PinValue value) {
     value_file.close();
 }
 
-void GPIO::WriteToGPIODirectionFile(GPIO::PinDirection direction) {
+void GPIO::SetDirection(GPIO::PinDirection direction) {
     std::string direction_file_path = GetGPIODirectory() + "direction";
     std::ofstream direction_file(direction_file_path);
     if (direction_file.fail()) {
         std::cerr << "ERROR: failed to open " << direction_file_path;
-        std::cerr << " in GPIO::WriteToGPIODirectionFile." << std::endl;
+        std::cerr << " in GPIO::SetDirection." << std::endl;
         std::cerr << "errno: " << strerror(errno) << std::endl;
         std::_Exit(EXIT_FAILURE);
     }
@@ -50,6 +50,32 @@ void GPIO::WriteToGPIODirectionFile(GPIO::PinDirection direction) {
                                              std::string("out");
     direction_file << direction_str;
     direction_file.close();
+}
+
+void GPIO::SetEdge(GPIO::PinEdge edge) {
+    std::string edge_file_path = GetGPIODirectory() + "edge";
+    std::ofstream edge_file(edge_file_path);
+    if (edge_file.fail()) {
+        std::cerr << "ERROR: failed to open " << edge_file_path;
+        std::cerr << " in GPIO::SetEdge." << std::endl;
+        std::cerr << "errno: " << strerror(errno) << std::endl;
+        std::_Exit(EXIT_FAILURE);
+    }
+
+    switch (edge) {
+        case 1:
+            edge_file << "rising";
+            break;
+        case 2:
+            edge_file << "falling";
+            break;
+        case 3:
+            edge_file << "both";
+            break;
+        default:
+            edge_file << "none";
+    }
+    edge_file.close();
 }
 
 std::string GPIO::GetValueFilePath() {

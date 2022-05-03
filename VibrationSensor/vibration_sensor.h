@@ -1,3 +1,4 @@
+#pragma once
 
 #include <GPIO/gpio.h>
 
@@ -8,10 +9,10 @@ public:
     VibrationSensor();
     ~VibrationSensor();
 
+    // Blocks thread until a vibration is detected.
     void WaitForVibration();
 
 private:
-
     // GPIO pin tied to the vibration sensor.
     GPIO pin;
 };
