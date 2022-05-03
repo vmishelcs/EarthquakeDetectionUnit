@@ -38,7 +38,8 @@ public:
     Accelerometer(Sensitivity sens);
     ~Accelerometer();
 
-    double GetReading();
+    inline double GetCurrentReading() { return current_reading; }
+    inline double GetHighestReading() { return highest_reading; }
 
 private:
     // Worker thread for sampling accelerometer readings.
@@ -58,7 +59,8 @@ private:
     // Worker thread.
     std::thread worker_thread;
     // Exponentially smoothed accelerometer magnitude reading.
-    std::atomic<double> smoothed_reading;
+    std::atomic<double> current_reading;
+    std::atomic<double> highest_reading;
 };
 
 } // earthquake_detection_unit

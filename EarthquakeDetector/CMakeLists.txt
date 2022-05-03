@@ -1,1 +1,2 @@
 add_library(earthquake_detector earthquake_detector.cc)
+target_link_libraries(earthquake_detector accelerometer digit_display gpio vibration_sensor)

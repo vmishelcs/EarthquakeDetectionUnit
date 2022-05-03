@@ -17,10 +17,10 @@ int main() {
         while (!begin_printing);
         std::cout << std::fixed;
         std::cout << std::setprecision(2);
-        std::cout << "Current reading: " << a->GetReading();
+        std::cout << "Current reading: " << a->GetCurrentReading();
         while (!stop_printing) {
             std::cout << "\b\b\b\b";
-            std::cout << a->GetReading();
+            std::cout << a->GetCurrentReading();
         }
         std::cout << "\rShutting down...";
         std::cout << std::endl;
