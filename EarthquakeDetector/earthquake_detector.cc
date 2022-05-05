@@ -23,7 +23,6 @@ EarthquakeDetector::EarthquakeDetector() {
 
     // Initialize digit display.
     digit_display = new DigitDisplay();
-    digit_display->SetDigit(5);
 
     worker_thread = std::thread(&EarthquakeDetector::Worker, this);
 }
@@ -32,6 +31,7 @@ EarthquakeDetector::~EarthquakeDetector() {
     shutdown = true;
     worker_thread.join();
 
+    // Shutdown digit display.
     delete digit_display;
 }
 
@@ -53,7 +53,7 @@ void EarthquakeDetector::Worker() {
         // Keep checking if we are still detecting significant shaking via the accelerometer.
         AccelerometerTimeout();
 
-        std::cout << "Shutting down accelerometer." << std::endl;
+        std::cout << "Shutting down accelerometer for inactivity." << std::endl;
         // Shutdown accelerometer for lack of activity.
         shutdown_accelerometer_monitor.store(true, std::memory_order_relaxed);
         accelerometer_monitor_thread.join();
@@ -63,8 +63,40 @@ void EarthquakeDetector::Worker() {
 
 void EarthquakeDetector::AccelerometerMonitor() {
     while (!shutdown_accelerometer_monitor) {
-        // double acc_reading = accelerometer->GetHighestReading();
-        
+        double acc_reading = accelerometer->GetHighestReading();
+        if (acc_reading >= kScaleValue9Threshold) {
+            digit_display->SetDigit(9);
+        }
+        else if (acc_reading >= kScaleValue8Threshold) {
+            digit_display->SetDigit(8);
+        }
+        else if (acc_reading >= kScaleValue8Threshold) {
+            digit_display->SetDigit(8);
+        }
+        else if (acc_reading >= kScaleValue7Threshold) {
+            digit_display->SetDigit(7);
+        }
+        else if (acc_reading >= kScaleValue6Threshold) {
+            digit_display->SetDigit(6);
+        }
+        else if (acc_reading >= kScaleValue5Threshold) {
+            digit_display->SetDigit(5);
+        }
+        else if (acc_reading >= kScaleValue4Threshold) {
+            digit_display->SetDigit(4);
+        }
+        else if (acc_reading >= kScaleValue3Threshold) {
+            digit_display->SetDigit(3);
+        }
+        else if (acc_reading >= kScaleValue2Threshold) {
+            digit_display->SetDigit(2);
+        }
+        else if (acc_reading >= kScaleValue1Threshold) {
+            digit_display->SetDigit(1);
+        }
+        else {
+            digit_display->SetDigit(0);
+        }
     }
 }
 

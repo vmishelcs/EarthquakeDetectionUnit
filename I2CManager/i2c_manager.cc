@@ -43,6 +43,7 @@ void I2CManager::SetSlaveAddress(uint8_t device_address) {
 void I2CManager::WriteToRegister(uint8_t register_address, uint8_t value) {
     mtx.lock();
 
+    std::cout << "fd: " << fd << std::endl;
     uint8_t buf[2] = { register_address, value };
     if (write(fd, buf, 2) != 2) {
         std::cerr << "ERROR: failed to write ";
