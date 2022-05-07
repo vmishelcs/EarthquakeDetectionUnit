@@ -6,6 +6,8 @@
 #include <thread>
 #include <vector>
 
+#include <I2CControl/i2c_control.h>
+
 /*
  * Interface for the MMA8452Q accelerometer.
  * The implementation was written with the help of the following data sheet.
@@ -41,6 +43,9 @@ public:
     inline double GetCurrentReading() { return current_reading; }
     inline double GetHighestReading() { return highest_reading; }
 
+    inline void Pause() { pause.store(true); }
+    inline void Unpause() { pause.store(false); }
+
 private:
     // Worker thread for sampling accelerometer readings.
     void Worker();
@@ -52,14 +57,19 @@ private:
 
     void SetSensitivity(Sensitivity sensitivity);
 
+    I2CControl *i2c_c;
+
     // Accelerometer sensitivity.
     Sensitivity sens;
     // Signal to shutdown worker thread.
     std::atomic<bool> shutdown;
+    // Signal to pause accelerometer thread.
+    std::atomic<bool> pause;
     // Worker thread.
     std::thread worker_thread;
     // Exponentially smoothed accelerometer magnitude reading.
     std::atomic<double> current_reading;
+    // Highest reading detected by accelerometer.
     std::atomic<double> highest_reading;
 };
 

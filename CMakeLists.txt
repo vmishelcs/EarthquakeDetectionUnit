@@ -15,10 +15,10 @@ add_subdirectory(Accelerometer)
 add_subdirectory(DigitDisplay)
 add_subdirectory(EarthquakeDetector)
 add_subdirectory(GPIO)
-add_subdirectory(I2CManager)
+add_subdirectory(I2CControl)
 add_subdirectory(VibrationSensor)
 
 add_subdirectory(Tests)
 
 add_executable(edu main.cc)
-target_link_libraries(edu accelerometer digit_display earthquake_detector gpio i2c_manager vibration_sensor)
+target_link_libraries(edu accelerometer digit_display earthquake_detector gpio i2c_control vibration_sensor)

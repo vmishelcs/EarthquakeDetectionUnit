@@ -14,12 +14,11 @@ const double kScaleValue7Threshold = 0.966;
 const double kScaleValue8Threshold = 1.103;
 const double kScaleValue9Threshold = 1.24;
 const int kAccelerometerTimeoutTotal_ms = 10000;
-const int kAccelerometerTimeoutPeriod_ms = 500;
+const int kAccelerometerTimeoutPeriod_ms = 100;
 const int kAccelerometerTimeoutNumPeriods = kAccelerometerTimeoutTotal_ms / kAccelerometerTimeoutPeriod_ms;
 
 EarthquakeDetector::EarthquakeDetector() {
     std::atomic<bool> shutdown(false);
-    std::atomic<bool> shutdown_accelerometer_monitor(false);
 
     // Initialize digit display.
     digit_display = new DigitDisplay();
@@ -43,18 +42,22 @@ void EarthquakeDetector::Worker() {
         vibration_sensor->WaitForVibration();
         delete vibration_sensor;
 
-        std::cout << "Vibration detected -- vibration sensor shutdown, launching accelerometer." << std::endl;
-
         // After detecting a vibration, launch accelerometer.
+        std::cout << "Vibration detected -- vibration sensor shutdown, launching accelerometer." << std::endl;
         accelerometer = new Accelerometer();
         shutdown_accelerometer_monitor.store(false, std::memory_order_relaxed);
         accelerometer_monitor_thread = std::thread(&EarthquakeDetector::AccelerometerMonitor, this);
 
         // Keep checking if we are still detecting significant shaking via the accelerometer.
-        AccelerometerTimeout();
+        AccelerometerMonitor();
 
-        std::cout << "Shutting down accelerometer for inactivity." << std::endl;
+        // Flash magnitude.
+        digit_display->FlashDisplay();
+        // Reset digit display to display 0.
+        digit_display->SetDigit(0);
+
         // Shutdown accelerometer for lack of activity.
+        std::cout << "Shutting down accelerometer for inactivity." << std::endl;
         shutdown_accelerometer_monitor.store(true, std::memory_order_relaxed);
         accelerometer_monitor_thread.join();
         delete accelerometer;
@@ -62,49 +65,11 @@ void EarthquakeDetector::Worker() {
 }
 
 void EarthquakeDetector::AccelerometerMonitor() {
-    while (!shutdown_accelerometer_monitor) {
-        double acc_reading = accelerometer->GetHighestReading();
-        if (acc_reading >= kScaleValue9Threshold) {
-            digit_display->SetDigit(9);
-        }
-        else if (acc_reading >= kScaleValue8Threshold) {
-            digit_display->SetDigit(8);
-        }
-        else if (acc_reading >= kScaleValue8Threshold) {
-            digit_display->SetDigit(8);
-        }
-        else if (acc_reading >= kScaleValue7Threshold) {
-            digit_display->SetDigit(7);
-        }
-        else if (acc_reading >= kScaleValue6Threshold) {
-            digit_display->SetDigit(6);
-        }
-        else if (acc_reading >= kScaleValue5Threshold) {
-            digit_display->SetDigit(5);
-        }
-        else if (acc_reading >= kScaleValue4Threshold) {
-            digit_display->SetDigit(4);
-        }
-        else if (acc_reading >= kScaleValue3Threshold) {
-            digit_display->SetDigit(3);
-        }
-        else if (acc_reading >= kScaleValue2Threshold) {
-            digit_display->SetDigit(2);
-        }
-        else if (acc_reading >= kScaleValue1Threshold) {
-            digit_display->SetDigit(1);
-        }
-        else {
-            digit_display->SetDigit(0);
-        }
-    }
-}
-
-void EarthquakeDetector::AccelerometerTimeout() {
     // This function returns if we obtain kAccelerometerTimeoutNumPeriods
     // consecutive low readings from the accelerometer.
     int consecutive_readings = 0;
     while (consecutive_readings != kAccelerometerTimeoutNumPeriods) {
+        DisplayMagnitude();
         if (accelerometer->GetCurrentReading() >= kScaleValue1Threshold) {
             consecutive_readings = 0;
         }
@@ -112,6 +77,45 @@ void EarthquakeDetector::AccelerometerTimeout() {
             ++consecutive_readings;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(kAccelerometerTimeoutPeriod_ms));
+    }
+}
+
+void EarthquakeDetector::DisplayMagnitude() {
+    double acc_reading = accelerometer->GetHighestReading();
+
+    uint8_t digit_to_display = 0;
+    if (acc_reading >= kScaleValue9Threshold) {
+        digit_to_display = 9;
+    }
+    else if (acc_reading >= kScaleValue8Threshold) {
+        digit_to_display = 8;
+    }
+    else if (acc_reading >= kScaleValue7Threshold) {
+        digit_to_display = 7;
+    }
+    else if (acc_reading >= kScaleValue6Threshold) {
+        digit_to_display = 6;
+    }
+    else if (acc_reading >= kScaleValue5Threshold) {
+        digit_to_display = 5;
+    }
+    else if (acc_reading >= kScaleValue4Threshold) {
+        digit_to_display = 4;
+    }
+    else if (acc_reading >= kScaleValue3Threshold) {
+        digit_to_display = 3;
+    }
+    else if (acc_reading >= kScaleValue2Threshold) {
+        digit_to_display = 2;
+    }
+    else if (acc_reading >= kScaleValue1Threshold) {
+        digit_to_display = 1;
+    }
+
+    if (digit_to_display != digit_display->GetCurrentDigit()) {
+        accelerometer->Pause();
+        digit_display->SetDigit(digit_to_display);
+        accelerometer->Unpause();
     }
 }
 

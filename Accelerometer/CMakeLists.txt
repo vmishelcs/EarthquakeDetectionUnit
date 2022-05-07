@@ -1,1 +1,2 @@
 add_library(accelerometer accelerometer.cc)
+target_link_libraries(accelerometer i2c_control)

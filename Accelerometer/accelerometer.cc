@@ -3,7 +3,6 @@
 #include <iostream>
 
 #include "accelerometer.h"
-#include <I2CManager/i2c_manager.h>
 
 namespace earthquake_detection_unit {
 
@@ -19,11 +18,12 @@ const Accelerometer::Sensitivity kDefaultAccelerometerSensitivity = Acceleromete
 
 Accelerometer::Accelerometer() {
     std::atomic<bool> shutdown(false);
+    std::atomic<bool> pause(false);
     std::atomic<double> current_reading(0.0f);
     std::atomic<double> highest_reading(0.0f);
 
-    auto *i2c_m = I2CManager::Get();
-    i2c_m->SetSlaveAddress(kAccelerometerI2CAddress);
+    i2c_c = new I2CControl();
+    i2c_c->SetSlaveAddress(kAccelerometerI2CAddress);
 
     ActivateAccelerometer();
 
@@ -38,8 +38,7 @@ Accelerometer::Accelerometer(Accelerometer::Sensitivity sens) {
     std::atomic<double> current_reading(0.0f);
     std::atomic<double> highest_reading(0.0f);
 
-    auto *i2c_m = I2CManager::Get();
-    i2c_m->SetSlaveAddress(kAccelerometerI2CAddress);
+    i2c_c->SetSlaveAddress(kAccelerometerI2CAddress);
 
     ActivateAccelerometer();
 
@@ -52,6 +51,7 @@ Accelerometer::Accelerometer(Accelerometer::Sensitivity sens) {
 Accelerometer::~Accelerometer() {
     shutdown = true;
     worker_thread.join();
+    delete i2c_c;
 }
 
 Accelerometer::Vector::Vector(int16_t x_reading, int16_t y_reading, int16_t z_reading) {
@@ -77,6 +77,9 @@ Accelerometer::Vector::Vector(const Vector &v) {
 
 void Accelerometer::Worker() {
     while (!shutdown) {
+        // Wait here if we are told to pause.
+        while (pause);
+
         CollectReading();
         if (current_reading > highest_reading) {
             highest_reading.store(current_reading, std::memory_order_relaxed);
@@ -92,8 +95,7 @@ void Accelerometer::CollectReading() {
     uint8_t buf[7];
     memset(buf, 0, sizeof(*buf) * 7);
 
-    auto *i2c_m = I2CManager::Get();
-    i2c_m->ReadFromRegister(kAccelerometerDataReg, (char *)buf, 7);
+    i2c_c->ReadFromRegister(kAccelerometerDataReg, (char *)buf, 7);
 
     // Construct directional magnitudes and Vector object from the latest reading.
     int16_t x_reading = ((buf[1] << 8) | buf[2]) >> 4;
@@ -109,18 +111,15 @@ void Accelerometer::CollectReading() {
 }
 
 void Accelerometer::ActivateAccelerometer() {
-    auto *i2c_m = I2CManager::Get();
-    i2c_m->WriteToRegister(kAccelerometerCtrlReg1, kAccelerometerOnCommand);
+    i2c_c->WriteToRegister(kAccelerometerCtrlReg1, kAccelerometerOnCommand);
 }
 
 void Accelerometer::ShutdownAccelerometer() {
-    auto *i2c_m = I2CManager::Get();
-    i2c_m->WriteToRegister(kAccelerometerCtrlReg1, kAccelerometerOffCommand);
+    i2c_c->WriteToRegister(kAccelerometerCtrlReg1, kAccelerometerOffCommand);
 }
 
 void Accelerometer::SetSensitivity(Accelerometer::Sensitivity sensitivity) {
-    auto *i2c_m = I2CManager::Get();
-    i2c_m->WriteToRegister(kAccelerometerXYZDataCFG, sensitivity);
+    i2c_c->WriteToRegister(kAccelerometerXYZDataCFG, sensitivity);
 }
 
 } // earthquake_detection_unit

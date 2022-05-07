@@ -5,7 +5,7 @@
 #include <iostream>
 
 #include "digit_display.h"
-#include <I2CManager/i2c_manager.h>
+#include <I2CControl/i2c_control.h>
 
 namespace earthquake_detection_unit {
 
@@ -18,12 +18,12 @@ const uint8_t kUpperDigitRegister     = 0x15;
 DigitDisplay::DigitDisplay() : left_digit_gpio(kLeftDigitGPIONumber),
                                right_digit_gpio(kRightDigitGPIONumber)
 {
-    auto *i2c_m = I2CManager::Get();
-    i2c_m->SetSlaveAddress(kDigitDisplayI2CAddress);
+    i2c_c = new I2CControl();
+    i2c_c->SetSlaveAddress(kDigitDisplayI2CAddress);
 
     // Set direction of both 8-bit ports on the I2C GPIO extender to be outputs.
-    i2c_m->WriteToRegister(0x00, 0x00);
-    i2c_m->WriteToRegister(0x01, 0x00);
+    i2c_c->WriteToRegister(0x00, 0x00);
+    i2c_c->WriteToRegister(0x01, 0x00);
 
     // Set GPIO pin to output.
     left_digit_gpio.SetDirection(GPIO::PinDirection::OUT);
@@ -31,8 +31,8 @@ DigitDisplay::DigitDisplay() : left_digit_gpio(kLeftDigitGPIONumber),
 
     // Initialize to 0.
     current_digit = 0;
-    i2c_m->WriteToRegister(kLowerDigitRegister, 0xA3);
-    i2c_m->WriteToRegister(kUpperDigitRegister, 0x96);    
+    i2c_c->WriteToRegister(kLowerDigitRegister, 0xA3);
+    i2c_c->WriteToRegister(kUpperDigitRegister, 0x96);    
 
     // Turn display on (just the right digit).
     left_digit_gpio.SetValue(GPIO::PinValue::LOW);
@@ -43,6 +43,8 @@ DigitDisplay::~DigitDisplay() {
     // Turn off digit display.
     left_digit_gpio.SetValue(GPIO::PinValue::LOW);
     right_digit_gpio.SetValue(GPIO::PinValue::LOW);
+
+    delete i2c_c;
 }
 
 void DigitDisplay::SetDigit(uint8_t digit) {
@@ -103,11 +105,26 @@ void DigitDisplay::SetDigit(uint8_t digit) {
                 upper_bits = 0x96;
         }
 
-        auto *i2c_m = I2CManager::Get();
         // Drive lower 8-bits.
-        i2c_m->WriteToRegister(kLowerDigitRegister, lower_bits);
+        i2c_c->WriteToRegister(kLowerDigitRegister, lower_bits);
         // Drive upper 8-bits.
-        i2c_m->WriteToRegister(kUpperDigitRegister, upper_bits);   
+        i2c_c->WriteToRegister(kUpperDigitRegister, upper_bits);   
+    }
+}
+
+void DigitDisplay::FlashDisplay() {
+    for (int i = 0; i < 5; ++i) {
+        // Turn display off.
+        right_digit_gpio.SetValue(GPIO::PinValue::LOW);
+
+        // Wait 200 ms.
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+        // Turn display on.
+        right_digit_gpio.SetValue(GPIO::PinValue::HIGH);
+
+        // Wait 200 ms.
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
 }
 

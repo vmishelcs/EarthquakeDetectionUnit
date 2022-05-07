@@ -1,4 +1,4 @@
 add_executable(accelerometer_test accelerometer_test.cc)
-target_link_libraries(accelerometer_test accelerometer i2c_manager)
+target_link_libraries(accelerometer_test accelerometer i2c_control)
 add_test(NAME accelerometer_test COMMAND accelerometer_test)
 add_custom_target(accelerometer_test_custom COMMAND ${CMAKE_CTEST_COMMAND} DEPENDS accelerometer_test)

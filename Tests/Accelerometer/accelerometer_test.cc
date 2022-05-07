@@ -4,10 +4,8 @@
 #include <thread>
 
 #include <Accelerometer/accelerometer.h>
-#include <I2CManager/i2c_manager.h>
 
 int main() {
-    earthquake_detection_unit::I2CManager::Initialize();
     auto *a = new earthquake_detection_unit::Accelerometer();
     std::atomic<bool> begin_printing(false);
     std::atomic<bool> stop_printing(false);
@@ -38,6 +36,5 @@ int main() {
     print_thread.join();
 
     delete a;
-    earthquake_detection_unit::I2CManager::Uninitialize();
     return 0;
 }

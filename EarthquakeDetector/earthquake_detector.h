@@ -15,10 +15,12 @@ public:
 
 private:
     void Worker();
+    // Blocking function to check if accelerometer is detecting significant readings
+    // and display current earthquake magnitude.
     void AccelerometerMonitor();
 
-    // Blocking function to check if accelerometer is detecting significant readings.
-    void AccelerometerTimeout();
+    // Displays current magnitude.
+    void DisplayMagnitude();
 
     // Worker thread member variable.
     std::thread worker_thread;
