@@ -16,34 +16,19 @@ const uint8_t kSleepTime_ms            = 2;
 const double kSmoothingFactor          = 0.1f;
 const Accelerometer::Sensitivity kDefaultAccelerometerSensitivity = Accelerometer::Sensitivity::SENS_2G;
 
-Accelerometer::Accelerometer() {
-    std::atomic<bool> shutdown(false);
-    std::atomic<bool> pause(false);
-    std::atomic<double> current_reading(0.0f);
-    std::atomic<double> highest_reading(0.0f);
-
+Accelerometer::Accelerometer() : shutdown(false),
+                                 current_reading(0.0f),
+                                 highest_reading(0.0f) {
+    // Create an instance of an I2C controller.
     i2c_c = new I2CControl();
+
+    // Set accelerometer as a slave address.
     i2c_c->SetSlaveAddress(kAccelerometerI2CAddress);
 
     ActivateAccelerometer();
 
-    sens = kDefaultAccelerometerSensitivity;
-    SetSensitivity(Accelerometer::Sensitivity::SENS_2G);
-
-    worker_thread = std::thread(&Accelerometer::Worker, this);
-}
-
-Accelerometer::Accelerometer(Accelerometer::Sensitivity sens) {
-    std::atomic<bool> shutdown(false);
-    std::atomic<double> current_reading(0.0f);
-    std::atomic<double> highest_reading(0.0f);
-
-    i2c_c->SetSlaveAddress(kAccelerometerI2CAddress);
-
-    ActivateAccelerometer();
-
-    sens = sens;
-    SetSensitivity(sens);
+    // Set sensitivity to default (2g).
+    SetSensitivity(kDefaultAccelerometerSensitivity);
 
     worker_thread = std::thread(&Accelerometer::Worker, this);
 }
@@ -75,11 +60,17 @@ Accelerometer::Vector::Vector(const Vector &v) {
     magnitude = v.magnitude;
 }
 
+void Accelerometer::ActivateAccelerometer() {
+    // Activate accelerometer via I2C.
+    i2c_c->WriteToRegister(kAccelerometerCtrlReg1, kAccelerometerOnCommand);
+}
+
+void Accelerometer::ShutDownAccelerometer() {
+    i2c_c->WriteToRegister(kAccelerometerCtrlReg1, kAccelerometerOffCommand);
+}
+
 void Accelerometer::Worker() {
     while (!shutdown) {
-        // Wait here if we are told to pause.
-        while (pause);
-
         CollectReading();
         if (current_reading > highest_reading) {
             highest_reading.store(current_reading, std::memory_order_relaxed);
@@ -108,14 +99,6 @@ void Accelerometer::CollectReading() {
     current_reading.store(kSmoothingFactor * latest_magnitude_reading +
                           (1.0f - kSmoothingFactor) * current_reading,
                           std::memory_order_relaxed);
-}
-
-void Accelerometer::ActivateAccelerometer() {
-    i2c_c->WriteToRegister(kAccelerometerCtrlReg1, kAccelerometerOnCommand);
-}
-
-void Accelerometer::ShutdownAccelerometer() {
-    i2c_c->WriteToRegister(kAccelerometerCtrlReg1, kAccelerometerOffCommand);
 }
 
 void Accelerometer::SetSensitivity(Accelerometer::Sensitivity sensitivity) {

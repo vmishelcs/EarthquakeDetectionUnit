@@ -47,7 +47,7 @@ DigitDisplay::~DigitDisplay() {
     delete i2c_c;
 }
 
-void DigitDisplay::SetDigit(uint8_t digit) {
+void DigitDisplay::SetDigit(unsigned int digit) {
     if (digit != current_digit) {
         assert(digit < 10);
         current_digit = digit;

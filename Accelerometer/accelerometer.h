@@ -13,7 +13,6 @@
  * The implementation was written with the help of the following data sheet.
  * https://cdn.sparkfun.com/datasheets/Sensors/Accelerometers/MMA8452Q-rev8.1.pdf
  * 
- * 
  */
 
 namespace earthquake_detection_unit {
@@ -26,6 +25,16 @@ public:
         SENS_8G  /* 2 */
     };
 
+    Accelerometer();
+    ~Accelerometer();
+
+    void ActivateAccelerometer();
+    void ShutDownAccelerometer();
+
+    inline double GetCurrentReading() { return current_reading; }
+    inline double GetHighestReading() { return highest_reading; }
+
+private:
     typedef struct Vector {
         Vector(int16_t x_reading, int16_t y_reading, int16_t z_reading);
         Vector(const Vector &v);
@@ -36,35 +45,21 @@ public:
         double magnitude;
     } Vector;
 
-    Accelerometer();
-    Accelerometer(Sensitivity sens);
-    ~Accelerometer();
-
-    inline double GetCurrentReading() { return current_reading; }
-    inline double GetHighestReading() { return highest_reading; }
-
-    inline void Pause() { pause.store(true); }
-    inline void Unpause() { pause.store(false); }
-
-private:
     // Worker thread for sampling accelerometer readings.
     void Worker();
 
+    // Collects current accelerometer reading via I2C.
     void CollectReading();
 
-    void ActivateAccelerometer();
-    void ShutdownAccelerometer();
-
+    // Sets accelerometer sensitivity via I2C.
     void SetSensitivity(Sensitivity sensitivity);
 
+    // Controller for I2C I/O.
     I2CControl *i2c_c;
-
     // Accelerometer sensitivity.
     Sensitivity sens;
-    // Signal to shutdown worker thread.
+    // Signal to shut down worker thread.
     std::atomic<bool> shutdown;
-    // Signal to pause accelerometer thread.
-    std::atomic<bool> pause;
     // Worker thread.
     std::thread worker_thread;
     // Exponentially smoothed accelerometer magnitude reading.

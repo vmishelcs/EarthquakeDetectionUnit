@@ -1,4 +1,5 @@
 #pragma once
+
 #include <atomic>
 #include <thread>
 
@@ -14,23 +15,22 @@ public:
     ~EarthquakeDetector();
 
 private:
+    // Worker thread for continuous earthquake monitoring.
     void Worker();
-    // Blocking function to check if accelerometer is detecting significant readings
-    // and display current earthquake magnitude.
+
+    // Monitors accelerometer readings. This function returns after a certain 
+    // number of consecutive low readings.
     void AccelerometerMonitor();
 
-    // Displays current magnitude.
+    // Displays current magnitude on the digit display.
     void DisplayMagnitude();
 
     // Worker thread member variable.
     std::thread worker_thread;
-    // Signal to shutdown worker thread.
+    // Signal to shut down worker thread.
     std::atomic<bool> shutdown;
-    // Thread for monitoring accelerometer readings.
-    std::thread accelerometer_monitor_thread;
-    // Signal to shutdown accelerometer monitoring thread.
-    std::atomic<bool> shutdown_accelerometer_monitor;
 
+    // Pointers to devices.
     Accelerometer *accelerometer;
     DigitDisplay *digit_display;
     VibrationSensor *vibration_sensor;

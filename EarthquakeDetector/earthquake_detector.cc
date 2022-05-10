@@ -13,13 +13,12 @@ const double kScaleValue6Threshold = 0.829;
 const double kScaleValue7Threshold = 0.966;
 const double kScaleValue8Threshold = 1.103;
 const double kScaleValue9Threshold = 1.24;
+
 const int kAccelerometerTimeoutTotal_ms = 10000;
-const int kAccelerometerTimeoutPeriod_ms = 100;
-const int kAccelerometerTimeoutNumPeriods = kAccelerometerTimeoutTotal_ms / kAccelerometerTimeoutPeriod_ms;
+const int kAccelerometerSamplePeriod_ms = 100;
+const int kAccelerometerTimeoutNumPeriods = kAccelerometerTimeoutTotal_ms / kAccelerometerSamplePeriod_ms;
 
-EarthquakeDetector::EarthquakeDetector() {
-    std::atomic<bool> shutdown(false);
-
+EarthquakeDetector::EarthquakeDetector() : shutdown(false) {
     // Initialize digit display.
     digit_display = new DigitDisplay();
 
@@ -27,15 +26,16 @@ EarthquakeDetector::EarthquakeDetector() {
 }
 
 EarthquakeDetector::~EarthquakeDetector() {
-    shutdown = true;
+    shutdown.store(true, std::memory_order_relaxed);
     worker_thread.join();
 
-    // Shutdown digit display.
+    // Shut down digit display.
     delete digit_display;
 }
 
 void EarthquakeDetector::Worker() {
     while (!shutdown) {
+        std::cout << "\t<EarthquakeDetector> ";
         std::cout << "Launching vibration sensor to listen for a vibration." << std::endl;
         // First, wait for a vibration.
         vibration_sensor = new VibrationSensor();
@@ -43,12 +43,11 @@ void EarthquakeDetector::Worker() {
         delete vibration_sensor;
 
         // After detecting a vibration, launch accelerometer.
+        std::cout << "\t<EarthquakeDetector> ";
         std::cout << "Vibration detected -- vibration sensor shutdown, launching accelerometer." << std::endl;
         accelerometer = new Accelerometer();
-        shutdown_accelerometer_monitor.store(false, std::memory_order_relaxed);
-        accelerometer_monitor_thread = std::thread(&EarthquakeDetector::AccelerometerMonitor, this);
 
-        // Keep checking if we are still detecting significant shaking via the accelerometer.
+        // Monitor accelerometer readings.
         AccelerometerMonitor();
 
         // Flash magnitude.
@@ -56,10 +55,9 @@ void EarthquakeDetector::Worker() {
         // Reset digit display to display 0.
         digit_display->SetDigit(0);
 
-        // Shutdown accelerometer for lack of activity.
-        std::cout << "Shutting down accelerometer for inactivity." << std::endl;
-        shutdown_accelerometer_monitor.store(true, std::memory_order_relaxed);
-        accelerometer_monitor_thread.join();
+        // Shut down accelerometer for lack of activity.
+        std::cout << "\t<EarthquakeDetector> ";
+        std::cout << "Shutting down accelerometer due to inactivity." << std::endl;
         delete accelerometer;
     }
 }
@@ -76,14 +74,14 @@ void EarthquakeDetector::AccelerometerMonitor() {
         else {
             ++consecutive_readings;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(kAccelerometerTimeoutPeriod_ms));
+        std::this_thread::sleep_for(std::chrono::milliseconds(kAccelerometerSamplePeriod_ms));
     }
 }
 
 void EarthquakeDetector::DisplayMagnitude() {
     double acc_reading = accelerometer->GetHighestReading();
 
-    uint8_t digit_to_display = 0;
+    unsigned int digit_to_display = 0;
     if (acc_reading >= kScaleValue9Threshold) {
         digit_to_display = 9;
     }
@@ -112,11 +110,7 @@ void EarthquakeDetector::DisplayMagnitude() {
         digit_to_display = 1;
     }
 
-    if (digit_to_display != digit_display->GetCurrentDigit()) {
-        accelerometer->Pause();
-        digit_display->SetDigit(digit_to_display);
-        accelerometer->Unpause();
-    }
+    digit_display->SetDigit(digit_to_display);
 }
 
 } // earthquake_detection_unit
