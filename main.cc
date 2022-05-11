@@ -3,9 +3,11 @@
 
 #include <EarthquakeDetector/earthquake_detector.h>
 #include <GPIO/export_file_manager.h>
+#include <Logging/log_manager.h>
 
 int main(int argc, char **argv) {
     earthquake_detection_unit::ExportFileManager::Initialize();
+    earthquake_detection_unit::LogManager::Initialize();
     
     auto *ed = new earthquake_detection_unit::EarthquakeDetector();
 
@@ -15,6 +17,7 @@ int main(int argc, char **argv) {
 
     delete ed;
 
+    earthquake_detection_unit::LogManager::Uninitialize();
     earthquake_detection_unit::ExportFileManager::Uninitialize();
 
     std::cout << "Shutting down..." << std::endl;

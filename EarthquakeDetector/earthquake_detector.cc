@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "earthquake_detector.h"
+#include <Logging/log_manager.h>
 
 namespace earthquake_detection_unit {
 
@@ -76,6 +77,10 @@ void EarthquakeDetector::AccelerometerMonitor() {
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(kAccelerometerSamplePeriod_ms));
     }
+
+    // Log the magnitude before returning.
+    auto *log_manager = LogManager::Get();
+    log_manager->LogRecord(digit_display->GetCurrentDigit());
 }
 
 void EarthquakeDetector::DisplayMagnitude() {
