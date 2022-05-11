@@ -33,8 +33,8 @@ public:
     // Write `edge` to .../gpioXX/edge file.
     void SetEdge(PinEdge edge);
 
-    // Obtains the value file directory for this GPIO object.
-    std::string GetValueFilePath();
+    // Returns the value file directory for this GPIO object.
+    std::string GetValueFilePath() const;
 
 private:
     // Exports `gpio_number` pin as GPIO.
@@ -42,6 +42,7 @@ private:
     // Unexports `gpio_number` pin.
     void UnexportGPIOPin();
 
+    // Returns GPIO directory corresponding to `gpio_number`.
     std::string GetGPIODirectory() const;
 
     // Linux GPIO number.

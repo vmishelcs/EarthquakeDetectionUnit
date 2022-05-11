@@ -36,7 +36,6 @@ void VibrationSensor::WaitForVibration() {
         std::cerr << "ERROR: failed to open " << pin.GetValueFilePath();
         std::cerr << " in VibrationSensor::WaitForVibration." << std::endl;
         std::cerr << "errno: " << strerror(errno) << std::endl;
-        close(epoll_fd);
         std::_Exit(EXIT_FAILURE);
     }
 
@@ -49,8 +48,6 @@ void VibrationSensor::WaitForVibration() {
         std::cerr << "ERROR: failed to add epoll event";
         std::cerr << " in VibrationSensor::WaitForVibration." << std::endl;
         std::cerr << "errno: " << strerror(errno) << std::endl;
-        close(epoll_fd);
-        close(gpio_fd);
         std::_Exit(EXIT_FAILURE);
     }
 
@@ -59,8 +56,6 @@ void VibrationSensor::WaitForVibration() {
             std::cerr << "ERROR: epoll_wait failed";
             std::cerr << " in VibrationSensor::WaitForVibration." << std::endl;
             std::cerr << "errno: " << strerror(errno) << std::endl;
-            close(epoll_fd);
-            close(gpio_fd);
             std::_Exit(EXIT_FAILURE);
         }
     }

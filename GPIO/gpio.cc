@@ -63,13 +63,13 @@ void GPIO::SetEdge(GPIO::PinEdge edge) {
     }
 
     switch (edge) {
-        case 1:
+        case GPIO::PinEdge::RISING:
             edge_file << "rising";
             break;
-        case 2:
+        case GPIO::PinEdge::FALLING:
             edge_file << "falling";
             break;
-        case 3:
+        case GPIO::PinEdge::BOTH:
             edge_file << "both";
             break;
         default:
@@ -78,7 +78,7 @@ void GPIO::SetEdge(GPIO::PinEdge edge) {
     edge_file.close();
 }
 
-std::string GPIO::GetValueFilePath() {
+std::string GPIO::GetValueFilePath() const {
     std::string result = GetGPIODirectory() + "value";
     return result;
 }
