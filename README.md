@@ -3,7 +3,7 @@
 
 ## About the project.
 
-Earthquake Detection Unit (EDU) is a simple earthquake detector for the BeagleBone Green equipped with the Zen cape and the SW-420 vibration sensor. EDU attempts to approximately map the vibrations it detects to the Richter scale. The computed magnitude is then displayed on the 14-segment digit display. The digit display is reset back to zero after a prolonged period of inactivity, and the previously displayed value is logged in the `~/edu-logs/` directory. The logging files follow the naming convention `edu__MM-DD-YYYY__HH-MM-SS.log`, where the date and time specified in the file name is the date and time when EDU was launched.
+Earthquake Detection Unit (EDU) is a simple earthquake detector for the BeagleBone Green equipped with the Zen cape and the SW-420 vibration sensor. EDU attempts to approximately map the vibrations it detects to the Richter scale. The computed magnitude is then displayed on the 14-segment digit display. The digit display is reset back to zero after a prolonged period of inactivity, and the previously displayed value is logged in the `~/edu-logs/` directory. The logging files follow the naming convention `edu__MM-DD-YYYY__HH-MM-SS.log`, where the date and time specified in the file name is the date and time at which EDU was launched.
 
 
 ## Installing prerequisites.
@@ -41,4 +41,3 @@ $ make
 ```
 
 The program executable is titled `edu`, located in the `build` directory. There are several tests in the `build/Tests` directory used to debug various components of the project.
-
