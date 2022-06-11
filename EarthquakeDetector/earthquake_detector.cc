@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "earthquake_detector.h"
+#include <GPIO/export_file_manager.h>
 #include <Logging/log_manager.h>
 
 namespace earthquake_detection_unit {
@@ -20,6 +21,10 @@ const int kAccelerometerSamplePeriod_ms = 100;
 const int kAccelerometerTimeoutNumPeriods = kAccelerometerTimeoutTotal_ms / kAccelerometerSamplePeriod_ms;
 
 EarthquakeDetector::EarthquakeDetector() : shutdown(false) {
+    // Initialize necessary utilities.
+    ExportFileManager::Initialize();
+    LogManager::Initialize();
+
     // Initialize digit display.
     digit_display = new DigitDisplay();
 
@@ -32,20 +37,26 @@ EarthquakeDetector::~EarthquakeDetector() {
 
     // Shut down digit display.
     delete digit_display;
+
+    // Shut down utilities.
+    LogManager::Uninitialize();
+    ExportFileManager::Uninitialize();
 }
 
 void EarthquakeDetector::Worker() {
     while (!shutdown) {
-        std::cout << "\t<EarthquakeDetector> ";
-        std::cout << "Launching vibration sensor to listen for a vibration." << std::endl;
         // First, wait for a vibration.
+        std::cout << "\t<EarthquakeDetector> ";
+        std::cout << "Launching vibration sensor to listen for a vibration.\n";
         vibration_sensor = new VibrationSensor();
         vibration_sensor->WaitForVibration();
         delete vibration_sensor;
 
         // After detecting a vibration, launch accelerometer.
         std::cout << "\t<EarthquakeDetector> ";
-        std::cout << "Vibration detected -- vibration sensor shutdown, launching accelerometer." << std::endl;
+        std::cout << "Vibration detected.\n";
+        std::cout << "\t<EarthquakeDetector> ";
+        std::cout << "Shutting down vibration sensor and launching accelerometer.\n";
         accelerometer = new Accelerometer();
 
         // Monitor accelerometer readings.
@@ -58,7 +69,7 @@ void EarthquakeDetector::Worker() {
 
         // Shut down accelerometer for lack of activity.
         std::cout << "\t<EarthquakeDetector> ";
-        std::cout << "Shutting down accelerometer due to inactivity." << std::endl;
+        std::cout << "Shutting down accelerometer due to inactivity.\n";
         delete accelerometer;
     }
 }

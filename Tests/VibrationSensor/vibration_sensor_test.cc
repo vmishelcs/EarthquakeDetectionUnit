@@ -24,7 +24,7 @@ int main() {
     std::cout << "Press `Enter` to quit." << std::endl;
     std::cin.get();
 
-    // Shutdown thread.
+    // Shut down thread.
     stop_thread = true;
     vibration_thread.join();
 
