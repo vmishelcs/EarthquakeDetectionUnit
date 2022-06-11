@@ -31,7 +31,7 @@ int main() {
     begin_printing = true;
     std::cin.get();
 
-    // Shutdown thread.
+    // Shut down thread.
     stop_printing = true;
     print_thread.join();
 

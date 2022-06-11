@@ -46,8 +46,8 @@ Accelerometer::Vector::Vector(int16_t x_reading, int16_t y_reading, int16_t z_re
     z = (double)abs(z_reading > 2048 ? z_reading - 4095 : z_reading);
     x = x / 1024.0f - 0.02f; // Subtract 0.02 to account for some noise.
     y = y / 1024.0f;
-    // Subtract 1 from z-reading to account for gravity.
-    z = z / 1024.0f - 1.01f; // Subtract 1.01 to account for some noise (and gravity).
+    // Subtract 1.0 from z-reading to account for gravity.
+    z = z / 1024.0f - 1.01f; // Also subtract 0.01 to account for some noise.
 
     // Obtain vector magnitude.
     magnitude = sqrt(x * x + y * y + z * z);
