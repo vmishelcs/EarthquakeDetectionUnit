@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-set(CMAKE_TOOLCHAIN_FILE "/home/${USER}/earthquake_detection_unit/edu_toolchain.cmake")
+set(CMAKE_TOOLCHAIN_FILE "edu_toolchain.cmake")
 
 project("Earthquake Detection Unit")
 
