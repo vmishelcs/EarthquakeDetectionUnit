@@ -14,6 +14,7 @@ Begin by installing the necessary compilation tools.
 $ sudo apt-get install build-essential
 $ sudo apt-get install gcc-arm-linux-gnueabihf
 $ sudo apt-get install g++-arm-linux-gnueabihf
+$ sudo apt-get install binutils-arm-linux-gnueabihf
 $ sudo apt-get install cmake
 ```
 
@@ -41,3 +42,37 @@ $ make
 ```
 
 The program executable is titled `edu`, located in the `build` directory. There are several tests in the `build/Tests` directory used to debug various components of the project.
+
+
+## Running the code.
+
+In order for the BeagleBone to obtain the compiled binaries and run them, we set up a Network File Sharing (NFS) server using Ethernet over USB. Start by installing the NFS server program on the host computer.
+
+``` shell
+$ sudo apt-get install portmap nfs-kernel-server
+```
+
+Next, we configure the server by appending a line to the `/etc/exports` file by specifying the build directory, the USB IP address and the netmask. In my case, since my EDU project folder is in the home directory, I would write the following.
+
+```
+/home/vmishel/EarthquakeDetectionUnit/build 192.168.7.0/255.255.255.252(rw,sync,no_subtree_check)
+```
+
+Restart the server so that our changes to `/etc/exports` can take effect.
+
+```shell
+$ sudo exportfs -rav
+$ sudo /etc/init.d/nfs-kernel-server restart
+```
+
+Check to make sure that the correct directory is exported.
+
+```shell
+$ showmount -e
+```
+
+Now we must mount the NFS server on the BeagleBone. First create a mount point.
+
+```shell
+$ sudo mkdir /mnt/edu-remote-build
+```
